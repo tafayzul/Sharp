@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Expense Tracker App</title>
+</head>
+<body>
+	<h1>Expense Tracker App</h1>
+	<form id="expense-form">
+		<label>Expense Amount:</label>
+		<input type="number" id="expense-amount" required>
+		<br><br>
+        <label>Select Category</label>
+        <select id="expense-category" required>
+            <option value="">-- Select Category --</option>
+            <option value="Food">Food</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Housing">Housing</option>
+            <option value="Utilities">Utilities</option>
+          </select>
+		<br><br>
+		<label>Subcategory:</label>
+            <select id="expense-subcategory" required>
+            <option value="">-- Select Subcategory --</option>
+            <option value="Groceries">Groceries</option>
+            <option value="Restaurants">Restaurants</option>
+            <option value="Movies">Movies</option>
+            <option value="Concerts">Concerts</option>
+            <option value="Gas">Gas</option>
+            <option value="Rent">Rent</option>
+            <option value="Electricity">Electricity</option>
+            <option value="Water">Water</option>
+            </select>
+		<br><br>
+		<button type="submit">Add Expense</button>
+	</form>
+	<br>
+	<table id="expense-table">
+		<thead>
+			<tr>
+				<th>Expense Amount</th>
+				<th>Category</th>
+				<th>Subcategory</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody id="expense-list"></tbody>
+	</table>
+   
+
+
+	<script >
+        // Selecting DOM elements
+const expenseForm = document.querySelector('#expense-form');
+const expenseList = document.querySelector('#expense-list');
+
+// Array to store expenses
+let expenses = [];
+
+// Function to render expenses in the table
+function renderExpenses() {
+  expenseList.innerHTML = '';
+  expenses.forEach((expense, index) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${expense.amount}</td>
+      <td>${expense.category}</td>
+      <td>${expense.subcategory}</td>
+      <td>
+        <button class="edit-button" data-id="${index}">Edit</button>
+        <button class="delete-button" data-id="${index}">Delete</button>
+      </td>
+    `;
+    expenseList.appendChild(tr);
+  });
+}
+
+// Function to add an expense
+function addExpense(amount, category, subcategory) {
+  const expense = {
+    amount: amount,
+    category: category,
+    subcategory: subcategory
+  };
+  expenses.push(expense);
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+  renderExpenses();
+}
+
+// Function to delete an expense
+function deleteExpense(index) {
+  expenses.splice(index, 1);
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+  renderExpenses();
+}
+
+// Function to edit an expense
+function editExpense(index, amount, category, subcategory) {
+  expenses[index].amount = amount;
+  expenses[index].category = category;
+  expenses[index].subcategory = subcategory;
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+  renderExpenses();
+}
+
+// Function to handle form submit
+function handleFormSubmit(e) {
+  e.preventDefault();
+  const amount = parseFloat(document.querySelector('#expense-amount').value);
+  const category = document.querySelector('#expense-category').value;
+  const subcategory = document.querySelector('#expense-subcategory').value;
+  addExpense(amount, category, subcategory);
+  expenseForm.reset();
+}
+
+// Function to handle button clicks
+function handleButtonClick(e) {
+  // Handling edit and delete button clicks
+  if (e.target.classList.contains('edit-button')) {
+    const index = e.target.dataset.id;
+    const expense = expenses[index];
+    const amount = prompt('Enter the new expense amount:', expense.amount);
+    const category = prompt('Enter the new category:', expense.category);
+    const subcategory = prompt('Enter the new subcategory:', expense.subcategory);
+    editExpense(index, amount, category, subcategory);
+  } else if (e.target.classList.contains('delete-button')) {
+    const index = e.target.dataset.id;
+    deleteExpense(index);
+  }
+}
+
+// Adding event listeners
+expenseForm.addEventListener('submit', handleFormSubmit);
+expenseList.addEventListener('click', handleButtonClick);
+
+// Initializing the app
+function init() {
+  const storedExpenses = localStorage.getItem('expenses');
+  if (storedExpenses) {
+    expenses = JSON.parse(storedExpenses);
+    renderExpenses();
+  }
+}
+
+init();
+
+
+
+    </script>
+</body>
+</html>
